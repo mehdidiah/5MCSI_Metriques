@@ -4,6 +4,10 @@ from flask import json
 from datetime import datetime
 from urllib.request import urlopen
 import sqlite3
+from flask import Flask, jsonify
+import requests
+from datetime import datetime
+import matplotlib.pyplot as plt
                                                                                                                                        
 app = Flask(__name__)     
 
