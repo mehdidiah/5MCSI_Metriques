@@ -54,7 +54,7 @@ def plot_commit_graph():
         minutes = list(commit_data.keys())
         commit_count = list(commit_data.values())
         
-        return render_template('commit_graph.html', minutes=minutes, commit_count=commit_count)
+        return render_template('commits.html', minutes=minutes, commit_count=commit_count)
     else:
         return "Erreur lors de la récupération des données des commits."
 
