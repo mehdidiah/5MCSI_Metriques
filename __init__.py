@@ -29,21 +29,16 @@ def meteo():
 
 @app.route('/github_commits/')
 def get_github_commits():
-    api_url = 'https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits'
-    response = requests.get(api_url)
-    
-    if response.status_code == 200:
-        commits_data = response.json()
-        results = []
-
+    response = urlopen('https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits')
+    raw_content = response.read()
+    json_content = json.loads(raw_content.decode('utf-8'))
+    results = []
         for commit in commits_data:
             author = commit.get('commit', {}).get('author', {})
             commit_date = author.get('date', None)
             results.append({'commit_date': commit_date})
         
         return jsonify(results=results)
-    else:
-        return jsonify(error="Failed to fetch data from GitHub API"), 500
 
 @app.route("/rapport/")
 def mongraphique():
