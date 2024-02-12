@@ -27,36 +27,9 @@ def meteo():
         results.append({'Jour': dt_value, 'temp': temp_day_value})
     return jsonify(results=results)
 
-def get_commit_data(repo_owner, repo_name):
-    api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/commits"
-    response = requests.get(api_url)
-    
-    if response.status_code == 200:
-        commits = response.json()
-        commit_dates = [commit['commit']['author']['date'] for commit in commits]
-        commit_dates = [datetime.fromisoformat(date[:-1]) for date in commit_dates]
-        commit_counts = {}
-        for date in commit_dates:
-            minute = date.replace(second=0, microsecond=0)
-            commit_counts[minute] = commit_counts.get(minute, 0) + 1
-        return commit_counts
-    else:
-        print(f"Erreur lors de la récupération des commits : {response.status_code}")
-        return None
-
-@app.route('/commits/')
-def plot_commit_graph():
-    repo_owner = "OpenRSI"
-    repo_name = "5MCSI_Metriques"
-
-    commit_data = get_commit_data(repo_owner, repo_name)
-    if commit_data:
-        minutes = list(commit_data.keys())
-        commit_count = list(commit_data.values())
-        
-        return render_template('commits.html', minutes=minutes, commit_count=commit_count)
-    else:
-        return "Erreur lors de la récupération des données des commits."
+@app.route("/rapport/")
+def mongraphique():
+    return render_template("commits.html")
 
 @app.route("/rapport/")
 def mongraphique():
