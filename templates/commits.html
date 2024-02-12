@@ -1,60 +1,44 @@
-import requests
-import turtle
-from datetime import datetime
-
-def get_commit_data(repo_owner, repo_name):
-    api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/commits"
-    response = requests.get(api_url)
-    
-    if response.status_code == 200:
-        commits = response.json()
-        commit_dates = [commit['commit']['author']['date'] for commit in commits]
-        commit_dates = [datetime.fromisoformat(date[:-1]) for date in commit_dates]
-        commit_counts = {}
-        for date in commit_dates:
-            minute = date.replace(second=0, microsecond=0)
-            commit_counts[minute] = commit_counts.get(minute, 0) + 1
-        return commit_counts
-    else:
-        print(f"Erreur lors de la récupération des commits : {response.status_code}")
-        return None
-
-def draw_bar(t, height):
-    t.begin_fill()
-    t.left(90)
-    t.forward(height)
-    t.write(str(height), align="center")
-    t.right(90)
-    t.forward(40)
-    t.right(90)
-    t.forward(height)
-    t.left(90)
-    t.end_fill()
-    t.penup()
-    t.forward(10)
-    t.pendown()
-
-def plot_commit_data(commit_data):
-    screen = turtle.Screen()
-    screen.setup(width=800, height=600)
-    screen.title('Quantité de commits effectués minute par minute')
-
-    t = turtle.Turtle()
-    t.color("blue")
-    t.fillcolor("red")
-    t.penup()
-    t.setpos(-300, -200)
-    t.pendown()
-
-    for height in commit_data.values():
-        draw_bar(t, height)
-
-    screen.mainloop()
-
-# Remplacez les valeurs suivantes par le propriétaire du dépôt et le nom du dépôt
-repo_owner = "OpenRSI"
-repo_name = "5MCSI_Metriques"
-
-commit_data = get_commit_data(repo_owner, repo_name)
-if commit_data:
-    plot_commit_data(commit_data)
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Métrique des commits</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  </head>
+  <body>
+    <div id="chart_div"></div>
+    <script>
+      google.charts.load('current', { packages: ['corechart'] });
+      google.charts.setOnLoadCallback(drawBackgroundColor);
+      
+      function drawBackgroundColor() {
+        function drawChart(data) {
+          // Convertir les données récupérées en un tableau utilisable par Google Charts
+          var dataTable = new google.visualization.DataTable();
+          dataTable.addColumn('string', 'Minute');
+          dataTable.addColumn('number', 'Nombre de commits');
+          data.forEach(entry => {
+            dataTable.addRow([entry.minute, entry.commit_count]);
+          });
+          
+          // Configurer les options du graphique en ligne
+          var options = {
+            title: 'Quantité de commits effectués minute par minute',
+            curveType: 'function',
+            legend: { position: 'bottom' }
+          };
+          
+          var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+          chart.draw(dataTable, options);
+        }
+        
+        // Récupération de données depuis notre API /commits/
+        fetch('/commits/')
+          .then(response => response.json())
+          .then(data => {
+            drawChart(data);
+          })
+          .catch(error => console.error('Erreur lors de la récupération des données :', error));
+      }
+    </script>
+  </body>
+</html>
