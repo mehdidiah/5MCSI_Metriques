@@ -1,5 +1,5 @@
 import requests
-import matplotlib.pyplot as plt
+import turtle
 from datetime import datetime
 
 def get_commit_data(repo_owner, repo_name):
@@ -19,17 +19,37 @@ def get_commit_data(repo_owner, repo_name):
         print(f"Erreur lors de la récupération des commits : {response.status_code}")
         return None
 
+def draw_bar(t, height):
+    t.begin_fill()
+    t.left(90)
+    t.forward(height)
+    t.write(str(height), align="center")
+    t.right(90)
+    t.forward(40)
+    t.right(90)
+    t.forward(height)
+    t.left(90)
+    t.end_fill()
+    t.penup()
+    t.forward(10)
+    t.pendown()
+
 def plot_commit_data(commit_data):
-    minutes = list(commit_data.keys())
-    commit_count = list(commit_data.values())
-    
-    plt.figure(figsize=(12, 6))
-    plt.plot(minutes, commit_count, marker='o', linestyle='-')
-    plt.title('Quantité de commits effectués minute par minute')
-    plt.xlabel('Temps')
-    plt.ylabel('Nombre de commits')
-    plt.grid(True)
-    plt.show()
+    screen = turtle.Screen()
+    screen.setup(width=800, height=600)
+    screen.title('Quantité de commits effectués minute par minute')
+
+    t = turtle.Turtle()
+    t.color("blue")
+    t.fillcolor("red")
+    t.penup()
+    t.setpos(-300, -200)
+    t.pendown()
+
+    for height in commit_data.values():
+        draw_bar(t, height)
+
+    screen.mainloop()
 
 # Remplacez les valeurs suivantes par le propriétaire du dépôt et le nom du dépôt
 repo_owner = "OpenRSI"
