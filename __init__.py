@@ -28,7 +28,7 @@ def meteo():
     return jsonify(results=results)
 
 @app.route("/commits/")
-def mongraphique():
+def commit():
     return render_template("commits.html")
 
 @app.route("/rapport/")
