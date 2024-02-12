@@ -27,9 +27,50 @@ def meteo():
         results.append({'Jour': dt_value, 'temp': temp_day_value})
     return jsonify(results=results)
 
-@app.route("/commits/")
-def commit():
-    return render_template("commits.html")
+def get_commit_data(repo_owner, repo_name):
+    api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/commits"
+    response = requests.get(api_url)
+    
+    if response.status_code == 200:
+        commits = response.json()
+        commit_dates = [commit['commit']['author']['date'] for commit in commits]
+        commit_dates = [datetime.fromisoformat(date[:-1]) for date in commit_dates]
+        commit_counts = {}
+        for date in commit_dates:
+            minute = date.replace(second=0, microsecond=0)
+            commit_counts[minute] = commit_counts.get(minute, 0) + 1
+        return commit_counts
+    else:
+        print(f"Erreur lors de la récupération des commits : {response.status_code}")
+        return None
+
+@app.route('/commits/')
+def plot_commit_graph():
+    repo_owner = "OpenRSI"
+    repo_name = "5MCSI_Metriques"
+
+    commit_data = get_commit_data(repo_owner, repo_name)
+    if commit_data:
+        minutes = list(commit_data.keys())
+        commit_count = list(commit_data.values())
+        
+        plt.plot(minutes, commit_count)
+        plt.title('Quantité de commits effectués minute par minute')
+        plt.xlabel('Temps')
+        plt.ylabel('Nombre de commits')
+        plt.grid(True)
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        
+        # Sauvegarde du graphique dans un fichier temporaire
+        plt_file_path = "/tmp/commit_graph.png"
+        plt.savefig(plt_file_path)
+        
+        # Retourne le chemin du fichier pour l'affichage sur le site
+        return f'<img src="{plt_file_path}">'
+    else:
+        return "Erreur lors de la récupération des données des commits."
+
 
 @app.route("/rapport/")
 def mongraphique():
