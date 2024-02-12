@@ -1,74 +1,38 @@
-import requests
-from datetime import datetime
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Graphique des commits</title>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body>
+  <div id="chart_div"></div>
 
-# Récupérer les données des commits depuis l'API GitHub
-def get_commit_data(repo_owner, repo_name):
-    api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/commits"
-    response = requests.get(api_url)
-    
-    if response.status_code == 200:
-        commits = response.json()
-        commit_dates = [commit['commit']['author']['date'] for commit in commits]
-        commit_dates = [datetime.fromisoformat(date[:-1]) for date in commit_dates]
-        commit_counts = {}
-        for date in commit_dates:
-            minute = date.replace(second=0, microsecond=0)
-            commit_counts[minute] = commit_counts.get(minute, 0) + 1
-        return commit_counts
-    else:
-        print(f"Erreur lors de la récupération des commits : {response.status_code}")
-        return None
+  <script>
+    google.charts.load('current', { packages: ['corechart'] });
+    google.charts.setOnLoadCallback(drawChart);
 
-# Générer les données des commits
-repo_owner = "OpenRSI"
-repo_name = "5MCSI_Metriques"
-commit_data = get_commit_data(repo_owner, repo_name)
+    function drawChart() {
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Minute');
+      data.addColumn('number', 'Nombre de commits');
 
-if commit_data:
-    # Formatter les données pour qu'elles soient utilisables en JavaScript
-    formatted_commit_data = [{"minute": str(minute), "commit_count": count} for minute, count in commit_data.items()]
-    formatted_commit_data_str = str(formatted_commit_data).replace("'", '"')
+      var minutes = {{ minutes|tojson }};
+      var commit_count = {{ commit_count|tojson }};
 
-    # Écrire le code HTML avec les données des commits
-    html_code = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <title>Métrique des commits</title>
-      <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    </head>
-    <body>
-      <div id="chart_div"></div>
+      for (var i = 0; i < minutes.length; i++) {
+        data.addRow([minutes[i], commit_count[i]]);
+      }
 
-      <script>
-        google.charts.load('current', {{ packages: ['corechart'] }});
-        google.charts.setOnLoadCallback(drawBackgroundColor);
+      var options = {
+        title: 'Quantité de commits effectués minute par minute',
+        curveType: 'function',
+        legend: { position: 'bottom' }
+      };
 
-        function drawBackgroundColor() {{
-          var commitData = {formatted_commit_data_str};
-
-          var dataTable = new google.visualization.DataTable();
-          dataTable.addColumn('string', 'Minute');
-          dataTable.addColumn('number', 'Nombre de commits');
-          commitData.forEach(entry => {{
-            dataTable.addRow([entry.minute, entry.commit_count]);
-          }});
-
-          var options = {{
-            title: 'Quantité de commits effectués minute par minute',
-            curveType: 'function',
-            legend: {{ position: 'bottom' }}
-          }};
-
-          var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-          chart.draw(dataTable, options);
-        }}
-      </script>
-    </body>
-    </html>
-    """
-
-    # Écrire le code HTML dans un fichier
-    with open("commit_metrics.html", "w") as file:
-        file.write(html_code)
+      var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+    }
+  </script>
+</body>
+</html>
