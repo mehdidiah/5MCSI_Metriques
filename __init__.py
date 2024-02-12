@@ -31,14 +31,9 @@ def meteo():
 def mongraphique():
     return render_template("graphique.html")
 
-@app.route('/histogramme/')
-var data = google.visualization.arrayToDataTable([
-         ['Element', 'Density', { role: 'style' }, { role: 'annotation' } ],
-         ['Copper', 8.94, '#b87333', 'Cu' ],
-         ['Silver', 10.49, 'silver', 'Ag' ],
-         ['Gold', 19.30, 'gold', 'Au' ],
-         ['Platinum', 21.45, 'color: #e5e4e2', 'Pt' ]
-      ]);
+@app.route("/histogramme/")
+def monhistogramme():
+    return render_template("histogramme.html")
   
 if __name__ == "__main__":
   app.run(debug=True)
