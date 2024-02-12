@@ -1,44 +1,69 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Métrique des commits</title>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-  </head>
-  <body>
-    <div id="chart_div"></div>
-    <script>
-      google.charts.load('current', { packages: ['corechart'] });
-      google.charts.setOnLoadCallback(drawBackgroundColor);
-      
-      function drawBackgroundColor() {
-        function drawChart(data) {
-          // Convertir les données récupérées en un tableau utilisable par Google Charts
-          var dataTable = new google.visualization.DataTable();
-          dataTable.addColumn('string', 'Minute');
-          dataTable.addColumn('number', 'Nombre de commits');
-          data.forEach(entry => {
-            dataTable.addRow([entry.minute, entry.commit_count]);
-          });
-          
-          // Configurer les options du graphique en ligne
-          var options = {
-            title: 'Quantité de commits effectués minute par minute',
-            curveType: 'function',
-            legend: { position: 'bottom' }
-          };
-          
-          var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-          chart.draw(dataTable, options);
-        }
-        
-        // Récupération de données depuis notre API /commits/
-        fetch('/commits/')
-          .then(response => response.json())
-          .then(data => {
-            drawChart(data);
-          })
-          .catch(error => console.error('Erreur lors de la récupération des données :', error));
+<head>
+  <meta charset="UTF-8">
+  <title>Métrique des commits</title>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body>
+  <div id="chart_div"></div>
+
+  <script>
+    google.charts.load('current', { packages: ['corechart'] });
+    google.charts.setOnLoadCallback(drawBackgroundColor);
+
+    function drawBackgroundColor() {
+      function drawChart(data) {
+        var dataTable = new google.visualization.DataTable();
+        dataTable.addColumn('string', 'Minute');
+        dataTable.addColumn('number', 'Nombre de commits');
+        data.forEach(entry => {
+          dataTable.addRow([entry.minute, entry.commit_count]);
+        });
+
+        var options = {
+          title: 'Quantité de commits effectués minute par minute',
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        chart.draw(dataTable, options);
       }
-    </script>
-  </body>
+
+      fetch('/commits/')
+        .then(response => response.json())
+        .then(data => {
+          drawChart(data);
+        })
+        .catch(error => console.error('Erreur lors de la récupération des données :', error));
+    }
+  </script>
+
+  <?php
+    $api_url = "https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits";
+    $response = file_get_contents($api_url);
+    $data = json_decode($response);
+
+    $commit_data = array();
+    foreach ($data as $commit) {
+      $date = new DateTime($commit->commit->author->date);
+      $minute = $date->format('Y-m-d H:i:00');
+      if (!array_key_exists($minute, $commit_data)) {
+        $commit_data[$minute] = 1;
+      } else {
+        $commit_data[$minute]++;
+      }
+    }
+
+    $formatted_commit_data = array();
+    foreach ($commit_data as $minute => $commit_count) {
+      array_push($formatted_commit_data, array("minute" => $minute, "commit_count" => $commit_count));
+    }
+  ?>
+
+  <script>
+    var commitData = <?php echo json_encode($formatted_commit_data); ?>;
+  </script>
+</body>
 </html>
