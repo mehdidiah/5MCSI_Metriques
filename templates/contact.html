@@ -1,3 +1,7 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
 <style>
 body {
 background: #FFD9D9;
@@ -101,6 +105,7 @@ color: #303030;
       document.getElementById("messageConfirmation").style.display = "block";
     }
 </script>
+  </head>
 <div class="contactez-nous">
 <h1>Contactez-nous</h1>
 <p>Un problème, une question, envie de nous envoyer un message d’amour ? N’hésitez pas à utiliser ce formulaire pour prendre contact avec nous !</p>
@@ -128,8 +133,9 @@ color: #303030;
 <textarea id="message" name="message" placeholder="Bonjour, je vous contacte car...." required></textarea>
 </div>
 <div>
-<button id="button1" onclick="msgConfirm()" type="button">Envoyer mon message</button>
+<button type="button"  onClick="msgConfirm()">Envoyer mon message</button>
 <p style="display: none">Votre message a bien été envoyé</p>
 </div>
 </form>
 </div>
+</html>
