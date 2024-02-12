@@ -34,7 +34,7 @@ def meteo():
     json_content = json.loads(raw_content.decode('utf-8'))
     results = []
     for list_element in json_content.get('commit', []):
-        author = list_element.get('author')
+        author = list_element.get('author', {}).get('name')
         results.append({'author': author})
     return jsonify(results=results)
 
