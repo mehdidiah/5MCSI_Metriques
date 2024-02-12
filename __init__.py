@@ -27,19 +27,6 @@ def meteo():
         results.append({'Jour': dt_value, 'temp': temp_day_value})
     return jsonify(results=results)
 
-@app.route('/github_commits/')
-def get_github_commits():
-    response = urlopen('https://api.github.com/repos/OpenRSI/5MCSI_Metriques/commits')
-    raw_content = response.read()
-    json_content = json.loads(raw_content.decode('utf-8'))
-    results = []
-        for commit in commits_data:
-            author = commit.get('commit', {}).get('author', {})
-            commit_date = author.get('date', None)
-            results.append({'commit_date': commit_date})
-        
-        return jsonify(results=results)
-
 @app.route("/rapport/")
 def mongraphique():
     return render_template("commits.html")
