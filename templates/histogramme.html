@@ -21,6 +21,12 @@
         var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
         chart.draw(data, options);
       }
+         fetch('/paris/')
+    .then(response => response.json())
+    .then(data => {
+      drawChart(data);
+    })
+      }
     </script>
   </head>
   <body>
