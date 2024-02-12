@@ -27,6 +27,9 @@ def meteo():
         results.append({'Jour': dt_value, 'temp': temp_day_value})
     return jsonify(results=results)
 
+@app.route("/commits/")
+def graph():
+    return render_template("commits.html")
 
 @app.route("/rapport/")
 def mongraphique():
